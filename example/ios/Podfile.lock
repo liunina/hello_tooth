@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - hello_tooth (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - hello_tooth (from `.symlinks/plugins/hello_tooth/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  hello_tooth:
+    :path: ".symlinks/plugins/hello_tooth/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  hello_tooth: 67a03be3dd269156f260ec2cc0e04364dac4ac09
+
+PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
+
+COCOAPODS: 1.11.2
