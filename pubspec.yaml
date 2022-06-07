@@ -1,7 +1,7 @@
 name: hello_tooth
-description: A new Flutter plugin project.
+description: A Flutter plugin project for ToothDoctor.
 version: 0.0.1
-homepage:
+homepage: https://github.com/liunina/hello_tooth
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
