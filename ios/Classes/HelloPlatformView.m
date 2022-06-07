@@ -8,6 +8,7 @@
 #import "HelloPlatformView.h"
 #import "TDCameraPreview.h"
 #import "HelloResult.h"
+#import "TaskApi.h"
 
 @interface HelloPlatformView ()<TDCameraPreviewDelegate>
 /// 视图
@@ -58,23 +59,28 @@
 /// @param call 事件
 /// @param result 结果
 - (void)onMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-    if ([call.method isEqualToString:@"preview#getPlatformVersion"]) {
-        NSString *version = [@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]];
-        HelloResult *retModel = [HelloResult successWithData:@{@"version": version}];
+    if ([call.method isEqualToString:@"tooth_doctor_call_method"] && [call.arguments isKindOfClass:[NSDictionary class]]) {
         
-        result(retModel.jsonBody);
-    }else if ([call.method isEqualToString:@"preview#setPlainText"]) {
-        if ([call.arguments isKindOfClass:[NSDictionary class]]) {
-            self.preview.plainText = call.arguments[@"plainText"];
+        TaskApi *api = [[TaskApi alloc] initWithDictionary:call.arguments];
+        HelloResult *resultModel = nil;
+        if ([api.method isEqualToString:@"getPlatformVersion"]) {
+            NSString *version = [@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]];
+            resultModel = [HelloResult successWithData:@{@"version": version}];
+        }else if ([api.method isEqualToString:@"setPlainText"]) {
+            self.preview.plainText = api.params[@"plainText"];
+            resultModel = [HelloResult successWithData:nil];
         }
-        result([HelloResult successWithData:nil].jsonBody);
+        
+        result(resultModel.jsonBody);
     }else {
         result(FlutterMethodNotImplemented);
     }
 }
 #pragma mark - TDCameraPreviewDelegate
 - (void)viewDidTapWithPreview:(TDCameraPreview *)preiview {
-    [_channel invokeMethod:@"preview#viewDidTap" arguments:nil];
+    TaskApi *api = [[TaskApi alloc] initWithMehod:@"viewDidTap" params:nil];
+    
+    [_channel invokeMethod:@"tooth_doctor_call_method" arguments:api.jsonBody];
 }
 
 #pragma mark - FlutterPlatformView

@@ -1,15 +1,17 @@
-import 'dart:ffi';
-
 import 'package:flutter/services.dart';
 import 'package:hello_tooth/camera_preview.dart';
+import 'package:hello_tooth/models/task_apis.dart';
 
-typedef PreviewDidTap = void Function();
+const toothDoctorCallMethod = "tooth_doctor_call_method";
+
+typedef PreviewDidReceiveRequest = TaskResult? Function(TaskApi api);
 
 class TDPreviewController {
   final MethodChannel channel;
   final CameraPreviewState _previewState;
 
-  PreviewDidTap? viewDidTap;
+  // * 收到请求
+  PreviewDidReceiveRequest? receiveRequest;
 
   TDPreviewController._(
     this.channel,
@@ -29,42 +31,30 @@ class TDPreviewController {
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
-      case 'preview#viewDidTap':
-        if (viewDidTap != null) {
-          viewDidTap!();
+      case toothDoctorCallMethod:
+        Map arguments = call.arguments;
+        String method = arguments["method"];
+        Map<String, dynamic>? params = arguments["params"];
+        TaskApi api = TaskApi(method, params);
+
+        if (receiveRequest != null) {
+          return receiveRequest!(api);
         }
         break;
     }
   }
 
-  Future<String?> getPlatformVersion() async {
-    final Map? responseData = await channel.invokeMapMethod(
-      'preview#getPlatformVersion',
-    );
+  Future<TaskResult> doCallMethod(TaskApi api) async {
+    final Map? responseData =
+        await channel.invokeMapMethod(toothDoctorCallMethod, api.toJson());
     if (responseData == null) {
-      return null;
+      return const TaskResult(9527, '错误,无响应', null);
     }
     int code = responseData["code"];
-    if (code == 0) {
-      Map data = responseData["data"];
-      String version = data["version"];
-      return version;
-    } else {
-      return null;
-    }
-  }
+    String? message = responseData["message"];
+    dynamic data = responseData["data"];
 
-  Future<bool> setPlainText({String plainText = "江月和人初见月,江月何年初照人"}) async {
-    final Map data = await channel.invokeMethod(
-      'preview#setPlainText',
-      {"plainText": plainText},
-    );
-
-    int code = data["code"];
-    if (code == 0) {
-      return true;
-    } else {
-      return false;
-    }
+    TaskResult result = TaskResult(code, message, data);
+    return result;
   }
 }
